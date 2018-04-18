@@ -7,7 +7,7 @@
     "install-native": "cd ../dist/server && npm install ../dist/server",
     "build-watch": "node_modules/.bin/webpack --watch --config webpack.config.js",
     "test": "node-dev ../dist/server/main",
-    "start": "node bin/www"
+    "start": "node dist/server/main"
   },
   "main": "./bin/www",
   "dependencies": {
