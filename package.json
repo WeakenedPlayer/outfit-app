@@ -9,7 +9,7 @@
     "test": "node-dev ../dist/server/main",
     "start": "node dist/server/main"
   },
-  "main": "./bin/www",
+  "main": "dist/server/main",
   "dependencies": {
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
