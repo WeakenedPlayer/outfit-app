@@ -1,17 +1,20 @@
 // Get dependencies
 import * as express from 'express';
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+import * as path from 'path';
+import * as favicon from 'serve-favicon';
+import * as logger from 'morgan';
+import * as cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 
-var app = express();
+let app = express();
 
 //Parsers for POST data
-app.use( logger('dev') );
+if( process.env.NODE_ENV === 'development' ) {
+    app.use( logger( 'dev' ) );    
+}
+
 app.use( bodyParser.json() );
-app.use( bodyParser.urlencoded({ extended: false }) );
+app.use( bodyParser.urlencoded( { extended: false } ) );
 app.use( cookieParser());
 app.use( express.static(path.join(__dirname, 'public')) );
 

@@ -3,13 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "node_modules/.bin/webpack --config webpack.config.js",
-    "install-native": "cd ../dist/server && npm install ../dist/server",
-    "build-watch": "node_modules/.bin/webpack --watch --config webpack.config.js",
-    "test": "node-dev ../dist/server/main",
-    "start": "node dist/server/main"
+    "build": "webpack --config webpack.config.js",
+    "wbuild": "webpack --watch --config webpack.config.js",
+    "test": "node-dev ../../dist/server/main",
+    "start": "node ../../dist/server/main"
   },
-  "main": "dist/server/main",
+  "main": "../dist/server/main",
   "dependencies": {
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",

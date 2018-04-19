@@ -2,7 +2,6 @@
 // https://github.com/angular/universal-starter/issues/505
 const path = require('path');
 const webpack = require( 'webpack' );
-const envPlugin = new webpack.EnvironmentPlugin( [ 'NODE_ENV', 'DEBUG' ] );
 
 module.exports = {
     mode: 'development',
@@ -14,7 +13,7 @@ module.exports = {
     },
     output : {
       // dist フォルダに格納する(この場で __dirname を解決するため、``で囲んでいる
-        path: `${__dirname}/dist/server`,
+        path: `${__dirname}/../dist/server`,
         filename: '[name].js'       // main.js になる
     },
     devtool: 'source-map',          // mapファイル(実行には関係ない)
@@ -38,5 +37,5 @@ module.exports = {
         ],
     },
     externals: [],
-    plugins:[ envPlugin ],
+    plugins:[  ],
 };
