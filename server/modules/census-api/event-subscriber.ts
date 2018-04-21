@@ -20,13 +20,11 @@ export class EventSubscriber {
     }
     
     private sendCommand( action: string, options?: any ): void {
-        console.log( 'send' );
-        this.ws.send( JSON.stringify( {
+        this.ws.send( {
             'service': 'event',
             'action': action,
             ...options
-        } ) );
-        console.log( 'done' );
+        } );
     }
     
     private sendSubscribeCommand( action: string, options?: any ): void {
@@ -103,7 +101,7 @@ export class EventSubscriber {
     }
     
     getRecentCharacterIdsCount(): Promise<RecentPlayerIdsCountResponse> {
-        this.sendCommand( 'recentCharacterIds' );
+        this.sendCommand( 'recentCharacterIdsCount' );
         return this.waitForPayload( payload => {
             console.log( 'called ' );
             return payload.recent_character_id_count; 

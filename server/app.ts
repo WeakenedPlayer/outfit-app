@@ -37,29 +37,45 @@ class CensusWebsocket implements ICensusWebsocket {
     }
 }
 
-let ws = new WebSocket();
-//let log = new EventSubscriber( ws );
+// let ws = new WebSocket();
+let cws = new CensusWebsocket( url );
+let log = new EventSubscriber( cws );
+
+cws.connect().then( ()=>{
+    console.log( '---------------------');
+    return new Promise( ( resolve, reject ) => {
+        setTimeout( () => {
+            resolve();
+        }, 2000 );
+    } );
+} ).then( () => {
+    return log.getRecentCharacterIdsCount();        
+} ).then( ids => {
+    console.log( '---------------------')
+    console.log( ids );
+} );
 //
 //ws.connect().then( () => {
 //    log.getRecentCharacterIdsCount().then( result => console.log( result ) );
 //} );
 
-const command = {
-    "service":"event",
-    "action":"subscribe",
-    "worlds":["1"], // connery
-    "eventNames":["PlayerLogin"]
-};
-
-ws.message$.subscribe( ( msg ) => {
-    console.log( msg );
-} );
-
-console.log('hey')
-ws.open( url )
-.then( () => {
-    ws.send( JSON.stringify( command ) );
-} );
+//const command = {
+//    "service":"event",
+//    "action":"subscribe",
+//    "worlds":["1"], // connery
+//    "eventNames":["PlayerLogin"]
+//};
+//
+//ws.message$.subscribe( ( msg ) => {
+//    console.log( msg );
+//} );
+//
+//console.log('hey')
+//ws.open( url )
+//.then( () => {
+//    ws.send( JSON.stringify( command ) );
+//    
+//} );
 
 let app = express();
 

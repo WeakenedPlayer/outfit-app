@@ -37,6 +37,7 @@ export class WsConnection {
         if( !this.con || !this.con.connected ) {
             throw new WsConnectionError.CannotSendMessageError( 'Cannot send message.' );
         }
+        console.log( data );
         this.con.send( data );
     }
     
