@@ -98,7 +98,6 @@ cws.connect().then( ()=>{
 //    console.log( msg );
 //} );
 //
-//console.log('hey')
 //ws.open( url )
 //.then( () => {
 //    ws.send( JSON.stringify( command ) );

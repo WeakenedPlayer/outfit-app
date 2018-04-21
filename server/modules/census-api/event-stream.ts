@@ -134,18 +134,20 @@ export class EventStream {
     // コマンドを送信する
     //-------------------------------------------------------------------------
     private sendCommand( action: string, options?: any ): void {
-        this.ws.send( {
-            'service': 'event',
-            'action': action,
-            ...options
-        } );
+        let command = {
+                'service': 'event',
+                'action': action,
+                ...options
+        };
+        console.log( command );
+        this.ws.send( command );
     }
 
     //-------------------------------------------------------------------------
     // subscriptionコマンドを発行する
     //-------------------------------------------------------------------------
     private sendSubscribeCommand( action: string, events: string[], filter: EventFilter, logicalAnd: boolean = false ): void {
-        this.sendCommand( 'subscribe', {
+        this.sendCommand( action, {
             'eventNames': events,
             'characters': filter.characters,
             'worlds': filter.worlds,
