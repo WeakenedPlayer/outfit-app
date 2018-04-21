@@ -8,7 +8,7 @@ export module WsConnectionError {
 }
 
 export class WsConnection {
-    private msg$: Subject<IMessage> = new Subject();
+    private msg$: Subject<IMessage> = new Subject<IMessage>();
 
     constructor( private con: connection ) {
         // guard
