@@ -37,11 +37,11 @@ export class WsConnection {
         if( !this.con || !this.con.connected ) {
             throw new WsConnectionError.CannotSendMessageError( 'Cannot send message.' );
         }
-        console.log( data );
         this.con.send( data );
     }
     
     destroy(): Promise<void> {
+        console.log( 'destroyed' );
         return new Promise( (resolve, reject) => {
             // guard
             if( !this.con || !this.con.connected ) {

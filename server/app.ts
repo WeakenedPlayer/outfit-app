@@ -9,11 +9,11 @@ import * as bodyParser from 'body-parser';
 import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
 import { WebSocket } from './modules/ws-wrapper';
 import { Observable } from 'rxjs';
-import { EventSubscriber, ICensusWebsocket ,Message} from './modules/census-api';
+import { EventSubscriber, ICensusApi , Message, EventFilter } from './modules/census-api';
 
 const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
 
-class CensusWebsocket implements ICensusWebsocket {
+class CensusWebsocket implements ICensusApi {
     private ws: WebSocket;
     constructor( private url: string ) {
         this.ws = new WebSocket();
@@ -41,18 +41,16 @@ class CensusWebsocket implements ICensusWebsocket {
 let cws = new CensusWebsocket( url );
 let log = new EventSubscriber( cws );
 
+
 cws.connect().then( ()=>{
-    console.log( '---------------------');
-    return new Promise( ( resolve, reject ) => {
-        setTimeout( () => {
-            resolve();
-        }, 2000 );
-    } );
 } ).then( () => {
     return log.getRecentCharacterIdsCount();        
 } ).then( ids => {
-    console.log( '---------------------')
-    console.log( ids );
+    console.log( 'test^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^' );
+    log.playerLogout$.subscribe( msg => console.log( msg ) );
+    return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], new EventFilter( [], [ 'all' ] ) );
+} ).then( () => {
+    console.log( 'test^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^' );
 } );
 //
 //ws.connect().then( () => {

@@ -4,12 +4,12 @@ export interface Message {
     'service': string;
     'type': string;
     'payload'?: any;
-    'subscribe'?: SubscriptionResponse;
+    'subscription'?: Response.Subscription;
     'online'?: any;
 }
 
-export module CharacterCentricEvent{
-    interface AchievementEarned {
+export module Event {
+    export interface AchievementEarned {
         event_name: string,
         character_id: string,
         timestamp: string,
@@ -18,7 +18,7 @@ export module CharacterCentricEvent{
         zone_id: string
     }
     
-    interface BattleRankUp {
+    export interface BattleRankUp {
         battle_rank: string,
         character_id: string,
         event_name: string,
@@ -27,7 +27,7 @@ export module CharacterCentricEvent{
         zone_id: string
     }
     
-    interface Death {
+    export interface Death {
         attacker_character_id: string,
         attacker_fire_mode_id: string,
         attacker_loadout_id: string,
@@ -43,32 +43,8 @@ export module CharacterCentricEvent{
         world_id: string,
         zone_id: string
     }
-    
-    interface FacilityControl {
-        duration_held: string,
-        event_name: string,
-        facility_id: string,
-        new_faction_id: string,
-        old_faction_id: string,
-        outfit_id: string,
-        timestamp: string,
-        world_id: string,
-        zone_id: string
-    } 
-    
-    interface GainExperience {
-        amount: string,
-        character_id: string,
-        event_name: string,
-        experience_id: string,
-        loadout_id: string,
-        other_id: string,
-        timestamp: string,
-        world_id: string,
-        zone_id: string
-    }
-    
-    interface ItemAdded {
+
+    export interface ItemAdded {
         character_id: string,
         context: string,
         event_name: string,
@@ -78,41 +54,8 @@ export module CharacterCentricEvent{
         world_id: string,
         zone_id: string
     }
-    
-    interface MetagameEvent {
-        event_name: string,
-        experience_bonus: string,
-        faction_nc: string,
-        faction_tr: string,
-        faction_vs: string,
-        metagame_event_id: string,
-        metagame_event_state: string,
-        timestamp: string,
-        world_id: string,
-        zone_id: string
-    }
-    
-    interface PlayerFacilityCapture {
-        character_id: string,
-        event_name: string,
-        facility_id: string,
-        outfit_id: string,
-        timestamp: string,
-        world_id: string,
-        zone_id: string
-    }
-    
-    interface PlayerFacilityDefend {
-        character_id: string,
-        event_name: string,
-        facility_id: string,
-        outfit_id: string,
-        timestamp: string,
-        world_id: string,
-        zone_id: string
-    }
-    
-    interface SkillAdded {
+
+    export interface SkillAdded {
         character_id: string,
         event_name: string,
         skill_id: string,
@@ -120,8 +63,8 @@ export module CharacterCentricEvent{
         world_id: string,
         zone_id: string
     }
-        
-    interface VehicleDestroy {
+    
+    export interface VehicleDestroy {
         attacker_character_id: string,
         attacker_loadout_id: string,
         attacker_vehicle_id: string,
@@ -135,10 +78,40 @@ export module CharacterCentricEvent{
         world_id: string,
         zone_id: string
     }
-}
+    
+    export interface GainExperience {
+        amount: string,
+        character_id: string,
+        event_name: string,
+        experience_id: string,
+        loadout_id: string,
+        other_id: string,
+        timestamp: string,
+        world_id: string,
+        zone_id: string
+    }
 
-export module WorldCentricEvent {
-    interface ContinentLock {
+    export interface PlayerFacilityCapture {
+        character_id: string,
+        event_name: string,
+        facility_id: string,
+        outfit_id: string,
+        timestamp: string,
+        world_id: string,
+        zone_id: string
+    }
+    
+    export interface PlayerFacilityDefend {
+        character_id: string,
+        event_name: string,
+        facility_id: string,
+        outfit_id: string,
+        timestamp: string,
+        world_id: string,
+        zone_id: string
+    }
+
+    export interface ContinentLock {
         event_name: string,
         timestamp: string,
         world_id: string,
@@ -152,7 +125,7 @@ export module WorldCentricEvent {
         event_type: string
     }
     
-    interface ContinentUnlock {
+    export interface ContinentUnlock {
         event_name: string,
         timestamp: string,
         world_id: string,
@@ -166,7 +139,7 @@ export module WorldCentricEvent {
         event_type: string
     }
     
-    interface FacilityControl {
+    export interface FacilityControl {
         event_name: string,
         timestamp: string,
         world_id: string,
@@ -178,30 +151,27 @@ export module WorldCentricEvent {
         zone_id: string
     }
     
-    interface MetagameEvent {
+    export interface MetagameEvent {
         event_name: string,
-        timestamp: string,
-        world_id: string,
         experience_bonus: string,
         faction_nc: string,
         faction_tr: string,
         faction_vs: string,
         metagame_event_id: string,
         metagame_event_state: string,
+        timestamp: string,
+        world_id: string,
         zone_id: string
     }
-}
-
-
-export module CharcterAndWorldCentricEvent {
-    interface PlayerLogin {
+    
+    export interface PlayerLogin {
         character_id: string,
         event_name: string,
         timestamp: string,
         world_id: string
     }
     
-    interface PlayerLogout {
+    export interface PlayerLogout {
         character_id: string,
         event_name: string,
         timestamp: string,
@@ -209,19 +179,21 @@ export module CharcterAndWorldCentricEvent {
     }
 }
 
-export interface RecentPlayerIdsResponse {
-    recent_character_id_count: string;
-    recent_character_id_list: string[]; 
-}
+export module Response {
+    export interface RecentPlayerIds {
+        recent_character_id_count: string;
+        recent_character_id_list: string[]; 
+    }
 
-export interface RecentPlayerIdsCountResponse {
-    recent_character_id_count: string;
-}
+    export interface RecentPlayerIdsCount {
+        recent_character_id_count: string;
+    }
 
-// subscription:
-export interface SubscriptionResponse {
-    characterCount: string,
-    eventNames: string[],
-    logicalAndCharactersWithWorlds: string,
-    worlds: string[]
+    // subscription:
+    export interface Subscription {
+        characterCount: string,
+        eventNames: string[],
+        logicalAndCharactersWithWorlds: string,
+        worlds: string[]
+    }    
 }
