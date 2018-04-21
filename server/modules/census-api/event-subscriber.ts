@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { Message, SubscriptionResponse, RecentPlayerIdsResponse, RecentPlayerIdsCountResponse } from './census-types';
 
-interface ICenssuWebsocket {
+export interface ICensusWebsocket {
     message$: Observable<Message>;
     send( data: any );
 }
@@ -14,7 +14,7 @@ export class IEventFilter {
 export class EventSubscriber {
     private filter: IEventFilter = null;
     private message$: Observable<Message>;
-    constructor( private ws: ICenssuWebsocket ) {
+    constructor( private ws: ICensusWebsocket ) {
         // connectable
         this.message$ = this.ws.message$.publish().refCount(); 
     }

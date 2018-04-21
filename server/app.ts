@@ -7,25 +7,45 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
 import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
-import { WebSocket } from '@weakenedplayer/ws-wrapper';
+import { WebSocket } from 'ws-wrapper';
+import { Observable } from 'rxjs';
+import { EventSubscriber, ICensusWebsocket ,Message} from './modules/census-api';
 
 
-let ws = new WebSocket();
-const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
-const command = {
-    "service":"event",
-    "action":"subscribe",
-    "worlds":["1"], // connery
-    "eventNames":["PlayerLogin"]
-};
+class CensusWebsocket implements ICensusWebsocket {
+    private ws: WebSocket;
+    constructor() {
+        this.ws = new WebSocket();
+    }
+    
+    get message$(): Observable<Message>{
+        return this.ws.message$.filter( msg => msg.type === 'utf8' )
+        .map( msg => JSON.parse( msg.utf8Data ) );
+    }
+    
+    send( data: any ): void {
+        return this.ws.send( JSON.stringify( data ) );
+    }
+}
 
-console.log('hey')
-ws.open( url ).then( () => {
-    ws.send( JSON.stringify( command ) );
-    ws.message$.subscribe( ( msg ) => {
-        console.log( msg );
-    } );
-} );
+let ws = new CensusWebsocket();
+let log = new EventSubscriber( ws );
+
+//const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
+//const command = {
+//    "service":"event",
+//    "action":"subscribe",
+//    "worlds":["1"], // connery
+//    "eventNames":["PlayerLogin"]
+//};
+//
+//console.log('hey')
+//ws.open( url ).then( () => {
+//    ws.send( JSON.stringify( command ) );
+//    ws.message$.subscribe( ( msg ) => {
+//        console.log( msg );
+//    } );
+//} );
 
 
 

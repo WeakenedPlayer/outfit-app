@@ -1,4 +1,4 @@
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { client, connection, IMessage } from 'websocket';
 import ExtendableError from 'es6-error';
 import { WsConnection } from './ws-connection';
@@ -12,8 +12,21 @@ export module WebSocketError {
 export class WebSocket {
     private ws: client;
     private con: WsConnection = null;
+    private connection$: BehaviorSubject<WsConnection> = new BehaviorSubject( null );
+    private msg$: Observable<IMessage>;
+
     constructor() {
         this.ws = new client();
+        
+        this.msg$ = this.connection$
+        .filter( con => !!con )
+        .flatMap( con => con.message$ )
+        .publish().refCount();
+    }
+    
+    private updateConnection( con: WsConnection ): void {
+        this.con = con;
+        this.connection$.next( this.con );
     }
     
     open( url: string ): Promise<void> {
@@ -26,7 +39,7 @@ export class WebSocket {
             // add listeners
             this.ws.once( 'connect', ( con: connection ) => {
                 console.info( 'Websocket: opened.' );
-                this.con = new WsConnection( con );
+                this.updateConnection( con );
                 resolve();
             } );
             
@@ -37,7 +50,7 @@ export class WebSocket {
             
             this.ws.once( 'close', () => {
                 console.info( 'Websocket: closed.' );
-                this.con = null;
+                this.updateConnection( null );
             } );
 
             this.ws.connect( url );
@@ -50,7 +63,7 @@ export class WebSocket {
         }
         
         return this.con.destroy().then( () => {
-            this.con = null;
+            this.updateConnection( null );
             return Promise.resolve();
         } );
     }
@@ -60,6 +73,6 @@ export class WebSocket {
     }
     
     get message$(): Observable<IMessage> {
-        return this.con.message$;
+        return this.msg$;
     }
 }
