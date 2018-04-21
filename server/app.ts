@@ -7,14 +7,15 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
 import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
-import { WebSocket } from 'ws-wrapper';
+import { WebSocket } from './modules/ws-wrapper';
 import { Observable } from 'rxjs';
 import { EventSubscriber, ICensusWebsocket ,Message} from './modules/census-api';
 
+const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
 
 class CensusWebsocket implements ICensusWebsocket {
     private ws: WebSocket;
-    constructor() {
+    constructor( private url: string ) {
         this.ws = new WebSocket();
     }
     
@@ -26,28 +27,39 @@ class CensusWebsocket implements ICensusWebsocket {
     send( data: any ): void {
         return this.ws.send( JSON.stringify( data ) );
     }
+    
+    connect(): Promise<void> {
+        return this.ws.open( this.url );
+    }
+    
+    disconnect(): Promise<void> {
+        return this.ws.close();
+    }
 }
 
-let ws = new CensusWebsocket();
-let log = new EventSubscriber( ws );
-
-//const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
-//const command = {
-//    "service":"event",
-//    "action":"subscribe",
-//    "worlds":["1"], // connery
-//    "eventNames":["PlayerLogin"]
-//};
+let ws = new WebSocket();
+//let log = new EventSubscriber( ws );
 //
-//console.log('hey')
-//ws.open( url ).then( () => {
-//    ws.send( JSON.stringify( command ) );
-//    ws.message$.subscribe( ( msg ) => {
-//        console.log( msg );
-//    } );
+//ws.connect().then( () => {
+//    log.getRecentCharacterIdsCount().then( result => console.log( result ) );
 //} );
 
+const command = {
+    "service":"event",
+    "action":"subscribe",
+    "worlds":["1"], // connery
+    "eventNames":["PlayerLogin"]
+};
 
+ws.message$.subscribe( ( msg ) => {
+    console.log( msg );
+} );
+
+console.log('hey')
+ws.open( url )
+.then( () => {
+    ws.send( JSON.stringify( command ) );
+} );
 
 let app = express();
 
