@@ -1,14 +1,27 @@
 import { Observable } from 'rxjs';
-import { Message, Response, Event } from './types';
+import { Response, Event, IEventStreamWebsocket } from './types';
 import { EventFilter } from './event-filter';
-import { ICensusApi } from './census-api';
 
-export class EventSubscriber {
-    private message$: Observable<Message>;
-    //---------------------------------------------------------------------
-    // イベント
-    //---------------------------------------------------------------------
+export class EventStream {
+    private message$: Observable<any>;
+    //-------------------------------------------------------------------------
+    // _message より派生
+    //-------------------------------------------------------------------------
+    private serviceMessage$: Observable<any>;
+    private _connectionStateChanged$: Observable<boolean>;
+    private _serviceStateChanged$: Observable<boolean>;
+    private _heartbeat$: Observable<any>;
+    private subscription$: Observable<Response.Subscription>;
+
+    //-------------------------------------------------------------------------
+    // _serviceMessage より派生 ペイロードを返す
+    //-------------------------------------------------------------------------
     private _event$: Observable<any>;
+    private recentCharacterIds$: Observable<Response.RecentCharacterIds>;
+
+    //-------------------------------------------------------------------------
+    // _event より派生
+    //-------------------------------------------------------------------------
     private _achievementEarned$: Observable<Event.AchievementEarned>;
     private _battleRankUp$: Observable<Event.BattleRankUp>;
     private _death$: Observable<Event.Death>;
@@ -25,19 +38,52 @@ export class EventSubscriber {
     private _playerLogin$: Observable<Event.PlayerLogin>;
     private _playerLogout$: Observable<Event.PlayerLogout>;
 
-    constructor( private ws: ICensusApi ) {
+    //-------------------------------------------------------------------------
+    //  Getter
+    //-------------------------------------------------------------------------
+    get connectionStateChanged$(): Observable<boolean> { return this._connectionStateChanged$ }
+    get serviceStateChanged$(): Observable<boolean> { return this._serviceStateChanged$ }
+    get heartbeat$(): Observable<any> { return this._heartbeat$ }
+    
+    get event$(): Observable<any> { return this._event$ }
+    get achievementEarned$(): Observable<Event.AchievementEarned> { return this._achievementEarned$ }
+    get battleRankUp$(): Observable<Event.BattleRankUp> { return this._battleRankUp$ }
+    get death$(): Observable<Event.Death> { return this._death$ }
+    get itemAdded$(): Observable<Event.ItemAdded> { return this._itemAdded$ }
+    get skillAdded$(): Observable<Event.SkillAdded> { return this._skillAdded$ }
+    get vehicleDestroy$(): Observable<Event.VehicleDestroy> { return this._vehicleDestroy$ }
+    get gainExperience$(): Observable<Event.GainExperience> { return this._gainExperience$ }
+    get playerFacilityCapture$(): Observable<Event.PlayerFacilityCapture> { return this._playerFacilityCapture$ }
+    get playerFacilityDefend$(): Observable<Event.PlayerFacilityDefend> { return this._playerFacilityDefend$ }
+    get continentLock$(): Observable<Event.ContinentLock> { return this._continentLock$ }
+    get continentUnlock$(): Observable<Event.ContinentUnlock> { return this._continentUnlock$ }
+    get facilityControl$(): Observable<Event.FacilityControl> { return this._facilityControl$ }
+    get metagameEvent$(): Observable<Event.MetagameEvent> { return this._metagameEvent$ }
+    get playerLogin$(): Observable<Event.PlayerLogin> { return this._playerLogin$ }
+    get playerLogout$(): Observable<Event.PlayerLogout> { return this._playerLogout$ }
+
+
+    constructor( private ws: IEventStreamWebsocket ) {
         //---------------------------------------------------------------------
         // connectable に変換する (複数のsubscriberが存在するため) 
         //---------------------------------------------------------------------
         this.message$ = this.ws.message$.publish().refCount();
 
+        //-------------------------------------------------------------------------
+        // _message より派生
+        //-------------------------------------------------------------------------
+        this.serviceMessage$ = this.typeFilter( 'serviceMessage' ).publish().refCount();
+        this._connectionStateChanged$ = this.typeFilter( 'connectionStateChanged' ).publish().refCount();
+        this._serviceStateChanged$ = this.typeFilter( 'serviceStateChanged' ).publish().refCount();
+        this._heartbeat$ = this.typeFilter( 'heartbeat' ).publish().refCount();
+        this.subscription$ = this.message$.filter( msg => msg[ 'subscription' ] );
         //---------------------------------------------------------------------
-        // event系のメッセージからpayloadを取り出す
+        
         //---------------------------------------------------------------------
-        this._event$ = this.message$
-        .filter( msg => msg[ 'payload' ] && msg[ 'payload'][ 'event_name'] )
-        .map( msg => msg.payload )
-        .publish().refCount();
+        // event系のメッセージ( payloadにevent_nameを持つことが条件 )
+        //---------------------------------------------------------------------
+        this._event$ = this.filterServiceMessage( 'event_name' ).publish().refCount();
+        this.recentCharacterIds$ = this.filterServiceMessage( 'recent_character_id_count' ).publish().refCount();
 
         //---------------------------------------------------------------------
         // 個別のイベント
@@ -58,29 +104,26 @@ export class EventSubscriber {
         this._playerLogin$ = this.filterEvent( 'PlayerLogin' ).publish().refCount();
         this._playerLogout$ = this.filterEvent( 'PlayerLogout' ).publish().refCount();
     }
+    //-------------------------------------------------------------------------
+    // _message を type で分類する
+    //-------------------------------------------------------------------------
+    private typeFilter( typeName: string ): Observable<any> {
+        return this.message$
+        .filter( msg => msg[ 'type' ] && msg[ 'type' ] === typeName );
+    }
 
     //-------------------------------------------------------------------------
-    // イベント
+    // _serviceMessage$ をペイロードに含まれる要素で分類する
+    // 同時にPayloadを抽出する
     //-------------------------------------------------------------------------
-    get event$(): Observable<any> { return this._event$ }
-    get achievementEarned$(): Observable<Event.AchievementEarned> { return this._achievementEarned$ }
-    get battleRankUp$(): Observable<Event.BattleRankUp> { return this._battleRankUp$ }
-    get death$(): Observable<Event.Death> { return this._death$ }
-    get itemAdded$(): Observable<Event.ItemAdded> { return this._itemAdded$ }
-    get skillAdded$(): Observable<Event.SkillAdded> { return this._skillAdded$ }
-    get vehicleDestroy$(): Observable<Event.VehicleDestroy> { return this._vehicleDestroy$ }
-    get gainExperience$(): Observable<Event.GainExperience> { return this._gainExperience$ }
-    get playerFacilityCapture$(): Observable<Event.PlayerFacilityCapture> { return this._playerFacilityCapture$ }
-    get playerFacilityDefend$(): Observable<Event.PlayerFacilityDefend> { return this._playerFacilityDefend$ }
-    get continentLock$(): Observable<Event.ContinentLock> { return this._continentLock$ }
-    get continentUnlock$(): Observable<Event.ContinentUnlock> { return this._continentUnlock$ }
-    get facilityControl$(): Observable<Event.FacilityControl> { return this._facilityControl$ }
-    get metagameEvent$(): Observable<Event.MetagameEvent> { return this._metagameEvent$ }
-    get playerLogin$(): Observable<Event.PlayerLogin> { return this._playerLogin$ }
-    get playerLogout$(): Observable<Event.PlayerLogout> { return this._playerLogout$ }
-
+    private filterServiceMessage( memberName: string ): Observable<any> {
+        return this.serviceMessage$
+        .map( msg => msg.payload )
+        .filter( payload => payload[ memberName ] )
+    }
+    
     //-------------------------------------------------------------------------
-    // イベントをフィルタする
+    // _event をイベント名で分類する
     //-------------------------------------------------------------------------
     private filterEvent( eventName: string ): Observable<any> {
         return this._event$
@@ -98,6 +141,9 @@ export class EventSubscriber {
         } );
     }
 
+    //-------------------------------------------------------------------------
+    // subscriptionコマンドを発行する
+    //-------------------------------------------------------------------------
     private sendSubscribeCommand( action: string, events: string[], filter: EventFilter, logicalAnd: boolean = false ): void {
         this.sendCommand( 'subscribe', {
             'eventNames': events,
@@ -108,23 +154,12 @@ export class EventSubscriber {
     }
     
     //-------------------------------------------------------------------------
-    // 応答を待つ
+    // subscriptionの応答を待つ
     //-------------------------------------------------------------------------
-    private waitMessage( cond: ( msg: Message ) => boolean ): Promise<Message> {
-        return this.message$
-        .filter( msg => cond( msg ) )
+    private waitForSubscribe(): Promise<Response.Subscription> {
+        return this.subscription$
         .take( 1 )
         .toPromise();
-    }
-
-    private waitForPayload( cond: ( payload: any ) => boolean ): Promise<any> {
-        return this.waitMessage( msg => msg[ 'payload' ] && cond( msg[ 'payload' ] ) )
-        .then( msg => msg[ 'payload' ] );
-    }
-
-    private waitForSubscribe(): Promise<Response.Subscription> {
-        return this.waitMessage( msg => !!msg[ 'subscription' ] )
-        .then( msg => msg[ 'subscription' ] );
     }
 
     //-------------------------------------------------------------------------
@@ -146,28 +181,33 @@ export class EventSubscriber {
     //-------------------------------------------------------------------------
     // イベントの通知を停止する
     //-------------------------------------------------------------------------
-    removeAllEvent(): Promise<Response.Subscription>{
-        this.sendCommand( 'clearSubscribe', {
-            'all': 'true'
-        } );
+    removeAllEvent(): Promise<Response.Subscription> {
+        this.sendCommand( 'clearSubscribe', { 'all': 'true' } );
         return this.waitForSubscribe(); 
+    }
+    
+    //-------------------------------------------------------------------------
+    // recentCharacterIds* の応答を待つ
+    //-------------------------------------------------------------------------
+    private waitRecentCharacterIds(): Promise<Response.RecentCharacterIds> {
+        return this.recentCharacterIds$
+        .take( 1 )
+        .toPromise();
     }
 
     //-------------------------------------------------------------------------
     // ログイン中のユーザ数とIDリストを取得する
     //-------------------------------------------------------------------------
-    getRecentCharacterIds(): Promise<Response.RecentPlayerIds> {
+    getRecentCharacterIds(): Promise<Response.RecentCharacterIds> {
         this.sendCommand( 'recentCharacterIds' );
-        return this.waitForPayload( payload => payload[ 'recent_character_id_list' ] );
+        return this.waitRecentCharacterIds();
     }
 
     //-------------------------------------------------------------------------
     // ログイン中のユーザ数を取得する
     //-------------------------------------------------------------------------
-    getRecentCharacterIdsCount(): Promise<Response.RecentPlayerIdsCount> {
+    getRecentCharacterIdsCount(): Promise<Response.RecentCharacterIds> {
         this.sendCommand( 'recentCharacterIdsCount' );
-        return this.waitForPayload( payload => {
-            return payload[ 'recent_character_id_count' ]; 
-        } );
+        return this.waitRecentCharacterIds();
     }
 }

@@ -9,17 +9,18 @@ import * as bodyParser from 'body-parser';
 import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
 import { WebSocket } from './modules/ws-wrapper';
 import { Observable } from 'rxjs';
-import { EventSubscriber, ICensusApi , Message, EventFilter } from './modules/census-api';
+import { EventStream, IEventStreamWebsocket , EventFilter, CensusConstant } from './modules/census-api';
+
 
 const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
 
-class CensusWebsocket implements ICensusApi {
+class CensusWebsocket implements IEventStreamWebsocket {
     private ws: WebSocket;
     constructor( private url: string ) {
         this.ws = new WebSocket();
     }
     
-    get message$(): Observable<Message>{
+    get message$(): Observable<any>{
         return this.ws.message$.filter( msg => msg.type === 'utf8' )
         .map( msg => JSON.parse( msg.utf8Data ) );
     }
@@ -39,18 +40,47 @@ class CensusWebsocket implements ICensusApi {
 
 // let ws = new WebSocket();
 let cws = new CensusWebsocket( url );
-let log = new EventSubscriber( cws );
+let log = new EventStream( cws );
 
+log.playerLogout$.subscribe( msg => console.log( 'Goodbye: ' + msg.character_id ) );
+log.playerLogin$.subscribe( msg => console.log( 'Hello: ' + msg.character_id ) );
+
+let filter1 = new EventFilter( [], [ 'all' ] );
+let filter2 = new EventFilter( [], CensusConstant.toWorldNames( [ 'all' ] ) );
 
 cws.connect().then( ()=>{
 } ).then( () => {
     return log.getRecentCharacterIdsCount();        
 } ).then( ids => {
-    console.log( 'test^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^' );
-    log.playerLogout$.subscribe( msg => console.log( msg ) );
-    return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], new EventFilter( [], [ 'all' ] ) );
-} ).then( () => {
-    console.log( 'test^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^' );
+    console.log( '--------------------------------------------------------' );
+    console.log( 'character count:' + ids.recent_character_id_count );
+    console.log( '--------------------------------------------------------' );
+    return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], filter1 );
+} )
+.then( ( sb ) => {
+    console.log( '--------------------------------------------------------' );
+    console.log( sb );
+    console.log( '--------------------------------------------------------' );
+    return new Promise( resolve => {
+        setTimeout( () => {
+            log.removeEvent( [ 'PlayerLogout' ], new EventFilter() ).then( ( sb ) => resolve( sb ) );
+        }, 4000 );
+    } );
+} )
+.then( ( sb ) => {
+    console.log( '--------------------------------------------------------' );
+    console.log( sb );
+    console.log( '--------------------------------------------------------' );
+    return new Promise( resolve => {
+        setTimeout( () => {
+            log.removeAllEvent().then( ( sb ) => resolve( sb ) );
+        }, 4000 );
+    } );
+} )
+.then( ( sb ) => {
+    console.log( '--------------------------------------------------------' );
+    console.log( sb );
+    console.log( '--------------------------------------------------------' );
 } );
 //
 //ws.connect().then( () => {

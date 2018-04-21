@@ -1,13 +1,17 @@
-// from http://census.daybreakgames.com/
+import { Observable } from 'rxjs';
 
-export interface Message {
-    'service': string;
-    'type': string;
-    'payload'?: any;
-    'subscription'?: Response.Subscription;
-    'online'?: any;
+//-----------------------------------------------------------------------------
+// Census API Websocket abstraction
+//-----------------------------------------------------------------------------
+export interface IEventStreamWebsocket {
+    message$: Observable<any>;
+    send( data: any ): void;
 }
 
+//-----------------------------------------------------------------------------
+// Event payload
+// type definition from http://census.daybreakgames.com/
+//-----------------------------------------------------------------------------
 export module Event {
     export interface AchievementEarned {
         event_name: string,
@@ -179,14 +183,13 @@ export module Event {
     }
 }
 
+//-----------------------------------------------------------------------------
+// Response from Census API
+//-----------------------------------------------------------------------------
 export module Response {
-    export interface RecentPlayerIds {
+    export interface RecentCharacterIds {
         recent_character_id_count: string;
-        recent_character_id_list: string[]; 
-    }
-
-    export interface RecentPlayerIdsCount {
-        recent_character_id_count: string;
+        recent_character_id_list?: string[]; 
     }
 
     // subscription:
@@ -195,5 +198,5 @@ export module Response {
         eventNames: string[],
         logicalAndCharactersWithWorlds: string,
         worlds: string[]
-    }    
+    }
 }
