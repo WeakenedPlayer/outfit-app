@@ -6,7 +6,28 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
-import { WebSocket } from 'ws-wrapper';
+import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
+import { WebSocket } from '@weakenedplayer/ws-wrapper';
+
+
+let ws = new WebSocket();
+const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
+const command = {
+    "service":"event",
+    "action":"subscribe",
+    "worlds":["1"], // connery
+    "eventNames":["PlayerLogin"]
+};
+
+console.log('hey')
+ws.open( url ).then( () => {
+    ws.send( JSON.stringify( command ) );
+    ws.message$.subscribe( ( msg ) => {
+        console.log( msg );
+    } );
+} );
+
+
 
 let app = express();
 
