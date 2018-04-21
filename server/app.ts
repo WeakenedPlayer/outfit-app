@@ -6,6 +6,8 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
+import { WebSocket } from 'ws-wrapper';
+
 let app = express();
 
 //Parsers for POST data
