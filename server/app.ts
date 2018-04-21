@@ -9,37 +9,12 @@ import * as bodyParser from 'body-parser';
 import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
 import { WebSocket } from './modules/ws-wrapper';
 import { Observable } from 'rxjs';
-import { EventStream, IEventStreamWebsocket , EventFilter, CensusConstant } from './modules/census-api';
+import { EventStream, EventFilter, CensusConstant } from './modules/census-api';
 
-
-const url = 'wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + CENSUS_API_KEY;
-
-class CensusWebsocket implements IEventStreamWebsocket {
-    private ws: WebSocket;
-    constructor( private url: string ) {
-        this.ws = new WebSocket();
-    }
-    
-    get message$(): Observable<any>{
-        return this.ws.message$.filter( msg => msg.type === 'utf8' )
-        .map( msg => JSON.parse( msg.utf8Data ) );
-    }
-    
-    send( data: any ): void {
-        return this.ws.send( JSON.stringify( data ) );
-    }
-    
-    connect(): Promise<void> {
-        return this.ws.open( this.url );
-    }
-    
-    disconnect(): Promise<void> {
-        return this.ws.close();
-    }
-}
+import { CensusWebsocket } from './modules/census-ws';
 
 // let ws = new WebSocket();
-let cws = new CensusWebsocket( url );
+let cws = new CensusWebsocket( 'ps2', CENSUS_API_KEY );
 let log = new EventStream( cws );
 
 log.playerLogout$.subscribe( msg => console.log( 'Goodbye: ' + msg.character_id ) );
