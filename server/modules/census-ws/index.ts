@@ -1,5 +1,4 @@
-import {  } from '../census-api';
-import { WebSocket } from 'ws-wrapper';
+import { WebSocket } from '../ws-wrapper';
 
 export class CensusWebsocket {
     private url: string = '';
@@ -16,6 +15,5 @@ export class CensusWebsocket {
         this.url = url + '&service-id=s:' + serviceId;
         this.ws = new WebSocket();
     }
-    
     
 }

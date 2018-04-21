@@ -18,7 +18,6 @@ export class WsConnection {
 
         // add listeners
         this.con.on( 'message', ( message: IMessage ) => {
-            console.log( 'WsConnection: got message' );
             this.msg$.next( message );
         } );
         
@@ -34,7 +33,6 @@ export class WsConnection {
     }
     
     send( data: any ): void {
-        console.log( 'WsConnection: send' );
         // guard
         if( !this.con || !this.con.connected ) {
             throw new WsConnectionError.CannotSendMessageError( 'Cannot send message.' );

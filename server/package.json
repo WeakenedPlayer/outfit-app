@@ -10,8 +10,6 @@
   },
   "main": "../dist/server/main",
   "dependencies": {
-    "@weakenedplayer/census-api": "file:modules/census-api",
-    "@weakenedplayer/ws-wrapper": "file:modules/ws-wrapper",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",

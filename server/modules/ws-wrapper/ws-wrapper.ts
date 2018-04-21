@@ -20,13 +20,7 @@ export class WebSocket {
         
         this.msg$ = this.connection$
         .filter( con => !!con )
-        .map( con => {
-            if( con ) {
-                console.log( 'con is active' );
-            }
-                
-            return con.message$;
-        } ) 
+        .flatMap( con => con.message$ ) 
         .publish()
         .refCount();
     }
@@ -47,7 +41,7 @@ export class WebSocket {
             // add listeners
             this.ws.once( 'connect', ( con: connection ) => {
                 console.info( 'Websocket: opened.' );
-                this.updateConnection( con );
+                this.updateConnection( new WsConnection( con ) );
                 resolve();
             } );
             
@@ -80,9 +74,7 @@ export class WebSocket {
         if( !this.con ) {
             throw new Error( 'not connected' );
         }
-        console.log( 'Websocket: send.' );
         this.con.send( data );
-        console.log( 'Websocket: send done.' );
     }
     
     get message$(): Observable<IMessage> {
