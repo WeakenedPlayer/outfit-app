@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "scripts": {
+    "start": "node ./server/main"
+  },
+  "main": "./server/main",
+  "dependencies": {
+    "body-parser": "~1.18.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "es6-error": "^4.1.1",
+    "express": "~4.15.5",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.0",
+    "serve-favicon": "~2.4.5",
+    "string-format": "^1.0.0",
+    "websocket": "^1.0.25"
+  }
+}

@@ -20,7 +20,7 @@ module.exports = {
     resolve: {
         // import, require で指定したモジュールを探すときの拡張子
       // .node など拡張子が増えたら反映する
-        extensions:['.ts', '.webpack.js', '.web.js', '.js']
+        extensions:['.ts', '.webpack.js', '.web.js', '.js', '.json' ]
     },
     module : {
         rules: [

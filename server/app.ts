@@ -5,29 +5,118 @@ import * as favicon from 'serve-favicon';
 import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
+import * as Discord from 'discord.js';
+import * as http from 'http';
 
 // import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
 import { Observable } from 'rxjs';
 import { EventStream, EventFilter, CensusConstant, Event } from './modules/census-api';
 import { CensusWebsocket } from './modules/census-ws';
 
-let cws = new CensusWebsocket( 'ps2' );
+let config = JSON.parse( process.env.OUTFIT_CONFIG );
+let target: string[] = config.TARGET || [];
+let key: string = config.CENSUS_API_KEY || 'example' ;
+let token: string = config.DISCORD_TOKEN || '';
+console.log( target );
+console.log( key );
+console.log( token );
+
+let names: { [id:string]: string } = {};
+
+//-----------------------------------------------------------------------------------------
+// discord
+//-----------------------------------------------------------------------------------------
+let discordClient = new Discord.Client();
+let channel: Discord.TextChannel;
+let ownerId = '';
+//setting
+discordClient.on('ready', () => {
+    console.log( 'Discord Ready.' );
+    discordClient.fetchApplication()
+    .then( apps => {
+        ownerId = apps.owner.id;
+    } );
+} );
+
+discordClient.on( 'message', ( message ) => {
+    if( message.author.id !== discordClient.user.id ) {
+        if( ownerId === message.author.id ) {
+            if( message.content === 'start' ) {
+                channel = message.channel as Discord.TextChannel;
+                console.log( 'start...channel id: ' + channel.id );
+            }
+        }
+    }
+} );
+
+function getChannel() {
+    return channel;
+}
+
+//-----------------------------------------------------------------------------------------
+// Census API
+//-----------------------------------------------------------------------------------------
+let cws = new CensusWebsocket( 'ps2', key );
 let log = new EventStream( cws );
 let loginPlayer: Event.PlayerLogin = null;
 let logoutPlayer: Event.PlayerLogout = null;
 
-log.serviceMessage$.subscribe( msg => console.log( msg ) );
+//log.serviceMessage$.subscribe( msg => console.log( msg ) );
+log.playerLogin$.flatMap( data => { 
+    let characterId: string = data.character_id;
 
-log.playerLogin$.subscribe( msg => { loginPlayer = msg });
-log.playerLogout$.subscribe( msg => { logoutPlayer = msg } );
+    return Observable.create( ( observer ) => {
+        let name: string = names[ characterId ];
+        if( !name ) {
+            http.get( 'http://census.daybreakgames.com/s:'+key+'/get/ps2:v2/character/?character_id='+characterId+'&c:show=name', ( res ) => {
+                let body = '';
+                let data;
+                res.setEncoding('utf8');
 
-let filter = new EventFilter( [], [ 'all' ] );
+                res.on('data', ( chunk ) => {
+                    data = JSON.parse( chunk.toString() );
+                    if( data.returned > 0 ) {
+                        let newName = data.character_list[0].name.first;
+                        console.log( 'new name added:' + newName );
+                        names[ characterId ] = newName;
+                        observer.next( newName );
+                        observer.complete();
+                    } else {
+                        observer.next( null );
+                        // Census API応答が止まった時はあきらめる
+                        // observer.error( 'Census REST API error.' );
+                    }
+                } );
+            } );
+        } else {
+            observer.next( name );
+            observer.complete();
+        }
+    } );
+} ).map( ( name ) => {
+    let ch = getChannel();                
+    if( ch && name ) {
+        ch.send( 'アウトフィット参加希望の'+ name + 'がログインしました。');
+    }
+} ).subscribe();
+
+let filter = new EventFilter( target, [] );
+//-----------------------------------------------------------------------------------------
 
 cws.connect().then( ()=>{
-    return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], filter );
+    return log.addEvent( [ 'PlayerLogin' ], filter );
+} ).then( ( sb ) => {
+    console.log( sb );
+    console.log( 'Census API ready.' );
+    return discordClient.login( token );
+} ).then( ( res ) => {
+    console.log( 'Discord Login: ' + res );
 } ).catch( ( err ) => {
     console.log( err );
 } );
+
+
+
 
 let app = express();
 
@@ -35,6 +124,7 @@ let app = express();
 if( process.env.NODE_ENV === 'development' ) {
     app.use( logger( 'dev' ) );    
 }
+
 
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded( { extended: false } ) );
@@ -50,11 +140,6 @@ app.use( express.static(path.join(__dirname, 'public')) );
 app.get('/login', (req, res) => {
     var file = req.params.file;
     res.json( loginPlayer );
-} );
-
-app.get('/logout', (req, res) => {
-    var file = req.params.file;
-    res.json( logoutPlayer );
 } );
 
 app.get('/:file', (req, res) => {
