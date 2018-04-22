@@ -41,7 +41,7 @@ export class WsConnection {
     }
     
     destroy(): Promise<void> {
-        console.log( 'destroyed' );
+        console.log( 'WsConnection: Destroyed.' );
         return new Promise( (resolve, reject) => {
             // guard
             if( !this.con || !this.con.connected ) {

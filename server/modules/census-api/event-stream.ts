@@ -7,7 +7,7 @@ export class EventStream {
     //-------------------------------------------------------------------------
     // _message より派生
     //-------------------------------------------------------------------------
-    private serviceMessage$: Observable<any>;
+    private _serviceMessage$: Observable<any>;
     private _connectionStateChanged$: Observable<boolean>;
     private _serviceStateChanged$: Observable<boolean>;
     private _heartbeat$: Observable<any>;
@@ -41,6 +41,7 @@ export class EventStream {
     //-------------------------------------------------------------------------
     //  Getter
     //-------------------------------------------------------------------------
+    get serviceMessage$(): Observable<any> { return this._serviceMessage$ }
     get connectionStateChanged$(): Observable<boolean> { return this._connectionStateChanged$ }
     get serviceStateChanged$(): Observable<boolean> { return this._serviceStateChanged$ }
     get heartbeat$(): Observable<any> { return this._heartbeat$ }
@@ -72,7 +73,7 @@ export class EventStream {
         //-------------------------------------------------------------------------
         // _message より派生
         //-------------------------------------------------------------------------
-        this.serviceMessage$ = this.typeFilter( 'serviceMessage' ).publish().refCount();
+        this._serviceMessage$ = this.typeFilter( 'serviceMessage' ).publish().refCount();
         this._connectionStateChanged$ = this.typeFilter( 'connectionStateChanged' ).publish().refCount();
         this._serviceStateChanged$ = this.typeFilter( 'serviceStateChanged' ).publish().refCount();
         this._heartbeat$ = this.typeFilter( 'heartbeat' ).publish().refCount();
@@ -117,7 +118,7 @@ export class EventStream {
     // 同時にPayloadを抽出する
     //-------------------------------------------------------------------------
     private filterServiceMessage( memberName: string ): Observable<any> {
-        return this.serviceMessage$
+        return this._serviceMessage$
         .map( msg => msg.payload )
         .filter( payload => payload[ memberName ] )
     }
@@ -139,7 +140,6 @@ export class EventStream {
                 'action': action,
                 ...options
         };
-        console.log( command );
         this.ws.send( command );
     }
 

@@ -40,18 +40,18 @@ export class WebSocket {
 
             // add listeners
             this.ws.once( 'connect', ( con: connection ) => {
-                console.info( 'Websocket: opened.' );
+                console.log( 'Websocket: opened.' );
                 this.updateConnection( new WsConnection( con ) );
                 resolve();
             } );
             
             this.ws.once( 'connectFailed', ( err ) => {
-                console.error( 'Websocket: failed.', err );
+                console.log( 'Websocket: failed.', err );
                 reject( new WebSocketError.OpenFailedError( err ) );
             } );
             
             this.ws.once( 'close', () => {
-                console.info( 'Websocket: closed.' );
+                console.log( 'Websocket: closed.' );
                 this.updateConnection( null );
             } );
 
@@ -72,7 +72,7 @@ export class WebSocket {
     
     send( data: any ): void {
         if( !this.con ) {
-            throw new Error( 'not connected' );
+            throw new Error( 'Not connected' );
         }
         this.con.send( data );
     }

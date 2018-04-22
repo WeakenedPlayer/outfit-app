@@ -16,6 +16,8 @@ let log = new EventStream( cws );
 let loginPlayer: Event.PlayerLogin = null;
 let logoutPlayer: Event.PlayerLogout = null;
 
+log.serviceMessage$.subscribe( msg => console.log( msg ) );
+
 log.playerLogin$.subscribe( msg => { loginPlayer = msg });
 log.playerLogout$.subscribe( msg => { logoutPlayer = msg } );
 
@@ -23,6 +25,8 @@ let filter = new EventFilter( [], [ 'all' ] );
 
 cws.connect().then( ()=>{
     return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], filter );
+} ).catch( ( err ) => {
+    console.log( err );
 } );
 
 let app = express();
