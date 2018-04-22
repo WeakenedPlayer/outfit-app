@@ -1,14 +1,7 @@
 var app = require('../app');
-var port;
-var ip;
+var port = normalizePort( process.env.OPENSHIFT_NODEJS_PORT || '3000' );
+var ip = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 
-if( process.env.NODE_ENV === 'development' ) {
-    port = normalizePort( process.env.PORT || '3000' );
-    ip = '127.0.0.1';
-} else {
-    port = normalizePort( process.env.OPENSHIFT_NODEJS_PORT || '8080' );
-    ip = process.env.OPENSHIFT_NODEJS_IP;
-}
 app.set('port', port);
 
 
