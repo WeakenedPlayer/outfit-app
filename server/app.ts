@@ -6,78 +6,24 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
-import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
-import { WebSocket } from './modules/ws-wrapper';
+// import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
 import { Observable } from 'rxjs';
-import { EventStream, EventFilter, CensusConstant } from './modules/census-api';
-
+import { EventStream, EventFilter, CensusConstant, Event } from './modules/census-api';
 import { CensusWebsocket } from './modules/census-ws';
 
-// let ws = new WebSocket();
-let cws = new CensusWebsocket( 'ps2', CENSUS_API_KEY );
+let cws = new CensusWebsocket( 'ps2' );
 let log = new EventStream( cws );
+let loginPlayer: Event.PlayerLogin = null;
+let logoutPlayer: Event.PlayerLogout = null;
 
-log.playerLogout$.subscribe( msg => console.log( 'Goodbye: ' + msg.character_id ) );
-log.playerLogin$.subscribe( msg => console.log( 'Hello: ' + msg.character_id ) );
+log.playerLogin$.subscribe( msg => { loginPlayer = msg });
+log.playerLogout$.subscribe( msg => { logoutPlayer = msg } );
 
-let filter1 = new EventFilter( [], [ 'all' ] );
-let filter2 = new EventFilter( [], CensusConstant.toWorldNames( [ 'all' ] ) );
+let filter = new EventFilter( [], [ 'all' ] );
 
 cws.connect().then( ()=>{
-} ).then( () => {
-    return log.getRecentCharacterIdsCount();        
-} ).then( ids => {
-    console.log( '--------------------------------------------------------' );
-    console.log( 'character count:' + ids.recent_character_id_count );
-    console.log( '--------------------------------------------------------' );
-    return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], filter1 );
-} )
-.then( ( sb ) => {
-    console.log( '--------------------------------------------------------' );
-    console.log( sb );
-    console.log( '--------------------------------------------------------' );
-    return new Promise( resolve => {
-        setTimeout( () => {
-            log.removeEvent( [ 'PlayerLogout' ], new EventFilter() ).then( ( sb ) => resolve( sb ) );
-        }, 4000 );
-    } );
-} )
-.then( ( sb ) => {
-    console.log( '--------------------------------------------------------' );
-    console.log( sb );
-    console.log( '--------------------------------------------------------' );
-    return new Promise( resolve => {
-        setTimeout( () => {
-            log.removeAllEvent().then( ( sb ) => resolve( sb ) );
-        }, 4000 );
-    } );
-} )
-.then( ( sb ) => {
-    console.log( '--------------------------------------------------------' );
-    console.log( sb );
-    console.log( '--------------------------------------------------------' );
+    return log.addEvent( [ 'PlayerLogin', 'PlayerLogout' ], filter );
 } );
-//
-//ws.connect().then( () => {
-//    log.getRecentCharacterIdsCount().then( result => console.log( result ) );
-//} );
-
-//const command = {
-//    "service":"event",
-//    "action":"subscribe",
-//    "worlds":["1"], // connery
-//    "eventNames":["PlayerLogin"]
-//};
-//
-//ws.message$.subscribe( ( msg ) => {
-//    console.log( msg );
-//} );
-//
-//ws.open( url )
-//.then( () => {
-//    ws.send( JSON.stringify( command ) );
-//    
-//} );
 
 let app = express();
 
@@ -96,6 +42,16 @@ app.use( express.static(path.join(__dirname, 'public')) );
 
 //Use API routes
 //app.use('/api', api);
+
+app.get('/login', (req, res) => {
+    var file = req.params.file;
+    res.json( loginPlayer );
+} );
+
+app.get('/logout', (req, res) => {
+    var file = req.params.file;
+    res.json( logoutPlayer );
+} );
 
 app.get('/:file', (req, res) => {
     var file = req.params.file;
@@ -124,6 +80,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
 
 module.exports = app;
