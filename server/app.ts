@@ -7,6 +7,7 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as Discord from 'discord.js';
 import * as http from 'http';
+import * as request from 'request';
 
 // import { DISCORD_TOKEN, CENSUS_API_KEY, id2name } from './const';
 import { Observable } from 'rxjs';
@@ -15,11 +16,14 @@ import { CensusWebsocket } from './modules/census-ws';
 
 let config = JSON.parse( process.env.OUTFIT_CONFIG );
 let target: string[] = config.TARGET || [];
-let key: string = config.CENSUS_API_KEY || 'example' ;
+let serviceId: string = config.CENSUS_API_SERVICE_ID || 'example' ;
 let token: string = config.DISCORD_TOKEN || '';
-console.log( target );
-console.log( key );
-console.log( token );
+let recaptcha: string = config.RECAPTCHA_SECRET || '';
+
+//　console.log( target );
+//　console.log( serviceId );
+//　console.log( recaptcha );
+//　console.log( token );
 
 let names: { [id:string]: string } = {};
 
@@ -56,7 +60,7 @@ function getChannel() {
 //-----------------------------------------------------------------------------------------
 // Census API
 //-----------------------------------------------------------------------------------------
-let cws = new CensusWebsocket( 'ps2', key );
+let cws = new CensusWebsocket( 'ps2', serviceId );
 let log = new EventStream( cws );
 let loginPlayer: Event.PlayerLogin = null;
 let logoutPlayer: Event.PlayerLogout = null;
@@ -68,7 +72,7 @@ log.playerLogin$.flatMap( data => {
     return Observable.create( ( observer ) => {
         let name: string = names[ characterId ];
         if( !name ) {
-            http.get( 'http://census.daybreakgames.com/s:'+key+'/get/ps2:v2/character/?character_id='+characterId+'&c:show=name', ( res ) => {
+            http.get( 'http://census.daybreakgames.com/s:'+serviceId+'/get/ps2:v2/character/?character_id='+characterId+'&c:show=name', ( res ) => {
                 let body = '';
                 let data;
                 res.setEncoding('utf8');
@@ -96,27 +100,37 @@ log.playerLogin$.flatMap( data => {
 } ).map( ( name ) => {
     let ch = getChannel();                
     if( ch && name ) {
-        ch.send( 'アウトフィット参加希望の'+ name + 'がログインしました。');
+        ch.send( 'アウトフィット参加希望の'+ name + 'がログインしました。\nCommanderの方は /outfit invite ' + name + 'で招待してください。');
     }
 } ).subscribe();
 
+log.playerLogout$.map( data => {
+    let characterId: string = data.character_id;
+    let name: string = names[ characterId ];
+
+    if( !name ) {
+        let ch = getChannel();                
+        if( ch && name ) {
+            ch.send( 'アウトフィット参加希望の'+ name + 'がログアウトしました。');
+        }
+    }
+} )
+
+
 let filter = new EventFilter( target, [] );
 //-----------------------------------------------------------------------------------------
-
-cws.connect().then( ()=>{
-    return log.addEvent( [ 'PlayerLogin' ], filter );
-} ).then( ( sb ) => {
-    console.log( sb );
-    console.log( 'Census API ready.' );
-    return discordClient.login( token );
-} ).then( ( res ) => {
-    console.log( 'Discord Login: ' + res );
-} ).catch( ( err ) => {
-    console.log( err );
-} );
-
-
-
+//cws.connect().then( ()=>{
+//    return log.addEvent( [ 'PlayerLogin' ], filter );
+//} ).then( ( sb ) => {
+//    console.log( sb );
+//    console.log( 'Census API ready.' );
+//    return discordClient.login( token );
+//} ).then( ( res ) => {
+//    console.log( 'Discord Login: ' + res );
+//} ).catch( ( err ) => {
+//    console.log( err );
+//} );
+//
 
 let app = express();
 
@@ -136,11 +150,23 @@ app.use( express.static(path.join(__dirname, 'public')) );
 
 //Use API routes
 //app.use('/api', api);
+const secret = '6Lcu-FQUAAAAAHAk2PJ3KDe-6sIb1C3RGK2KB32e';
+
+app.post('/submit', (req, res) => {
+    let verifyUrl = 'https://www.google.com/recaptcha/api/siteverify?secret='+secret+'&response=' + req.body.recaptcha;
+    request( verifyUrl, ( err, res, body ) => {
+        if( err ) {
+            res.json( {'aaa': 2} );
+        }
+        console.log( JSON.parse(body) );
+        res.json( {'aaa': 1} );
+    } );
+} );
 
 app.get('/login', (req, res) => {
-    var file = req.params.file;
     res.json( loginPlayer );
 } );
+
 
 app.get('/:file', (req, res) => {
     var file = req.params.file;

@@ -10,11 +10,32 @@ export class AppComponent {
     name: string = 'name';
     password: string = 'pwd';
     token: string = 'no';
-    
+    recaptcha: string = '';
     constructor( private http: Http ) {
         
     }
+    
+    resolved( result: string ) {
+        console.log( result );
+        this.recaptcha = result;
+        this.http.post( '/submit', {
+            name: this.name,
+            recaptcha: result
+        } ).toPromise().then( ( res: Response ) => {
+            console.log( res );
+        } );
+    }
+    
     onSubmit() {
+        this.http.post( '/submit', {
+            name: this.name,
+            recaptcha: this.recaptcha
+        } ).toPromise().then( ( res: Response ) => {
+            console.log( res );
+        } );
+    }
+    
+    onLogin() {
         this.http.post( '/auth/login', { name: this.name, password: this.password } ).toPromise().then( ( res: Response ) => {
             let token = this.retrieveToken( res );
             if( token ){

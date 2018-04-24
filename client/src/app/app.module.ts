@@ -4,8 +4,11 @@ import { HttpModule } from '@angular/http';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { RecaptchaModule } from 'ng-recaptcha';
 
 import { AppComponent } from './app.component';
+
+
 
 
 @NgModule({
@@ -15,7 +18,8 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     HttpModule,
-    FormsModule
+    FormsModule,
+    RecaptchaModule.forRoot()
   ],
   providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}],
   bootstrap: [AppComponent]
