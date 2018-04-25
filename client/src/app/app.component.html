@@ -4,8 +4,9 @@
     Outfit App
   </h1>
 </div>
-<form action='/submit' method='post'>
-   	<input type="text" [(ngModel)]="name" name="nameInput">
+
+<form [formGroup]="formGroup">
+   	<input class="form-control" formControlName="name">
    	<re-captcha (resolved)="resolved($event)" name="captch" required siteKey="6Lcu-FQUAAAAAKJNo4yIgv4ukowhZrTDpUVAV9rj"></re-captcha>
    	<button type="submit" (click)="onSubmit()">test</button>
 </form>

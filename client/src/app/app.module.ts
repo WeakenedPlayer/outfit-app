@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { RecaptchaModule } from 'ng-recaptcha';
 
@@ -18,7 +18,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     HttpModule,
-    FormsModule,
+    ReactiveFormsModule,
     RecaptchaModule.forRoot()
   ],
   providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}],

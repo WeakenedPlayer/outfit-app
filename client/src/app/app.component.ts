@@ -1,18 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Observable, Subscription } from 'rxjs';
+
+import { ShowQuery } from '../modules/census-api';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
     title = 'app';
-    name: string = 'name';
+    formGroup: FormGroup;
+    name: FormControl;
     password: string = 'pwd';
     token: string = 'no';
     recaptcha: string = '';
+    sb: Subscription = null;
     constructor( private http: Http ) {
+        this.formGroup = new FormGroup( {
+            name: new FormControl()
+        } );
+        this.formGroup.controls.name.valueChanges.subscribe( a => console.log( a ) );
         
+        let query = new ShowQuery( [ 'name', 'character_id' ] );
+        console.log( query.toString() );
     }
     
     resolved( result: string ) {
@@ -81,5 +94,9 @@ export class AppComponent {
         let res: any = response.json();
         let token: string = res.token;
         return token;
+    }
+    
+    ngOnDestroy(): void {
+        this.sb.unsubscribe();
     }
 }
