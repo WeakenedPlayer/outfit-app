@@ -43,4 +43,3 @@ export class CensusRestApi {
     }
 
 }
-//'http://census.daybreakgames.com/s:'+serviceId+'/get/ps2:v2/character/?character_id='+characterId+'&c:show=name'
