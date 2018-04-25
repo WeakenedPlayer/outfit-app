@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Observable, Subscription } from 'rxjs';
 
-import { QueryBuilder } from '../modules/census-api';
+import { QueryBuilder, CommandBuilder } from '../modules/census-api';
 
 @Component({
   selector: 'app-root',
@@ -25,8 +25,15 @@ export class AppComponent implements OnDestroy {
         this.formGroup.controls.name.valueChanges.subscribe( a => console.log( a ) );
         
         let query = new QueryBuilder();
-        query.equals( 'name', 'hello' ).lessThan( 'value', '10' );
+        query.equals( 'name', 'hello' )
+        .lessThan( 'outfit', '10' );
         console.log( query.toString() );
+        
+
+        let command = new CommandBuilder();
+        command.show( [ 'name' ] ).hide( [ 'outfit' ] );
+        console.log( command.toString() );
+        
     }
     
     resolved( result: string ) {

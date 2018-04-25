@@ -9,7 +9,7 @@ export interface CensusQueryString {
 export class QueryBuilder {
     private query: string = '';
     private append( field: string, modifier: string, value: string ): QueryBuilder {
-        this.query = this.query + '&' + field + '=' + modifier + value;
+        this.query = this.query + ( this.query ? '&' : '' ) + field + '=' + modifier + value;
         return this;
     }
 
@@ -38,7 +38,7 @@ export class CommandBuilder {
         return
     }
     private append( command: string, param: string ): CommandBuilder {
-        this.command =  this.command + ',c:' + command + '=' + param;
+        this.command = this.command + ( this.command ? ',' : '' ) + 'c:' + command + '=' + param;
         return this;
     }
     
