@@ -1,10 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { RecaptchaModule } from 'ng-recaptcha';
+//import { RecaptchaModule } from 'ng-recaptcha';
 
 import { AppComponent } from './app.component';
 
@@ -17,9 +17,9 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    HttpModule,
+    HttpClientModule,
     ReactiveFormsModule,
-    RecaptchaModule.forRoot()
+//    RecaptchaModule.forRoot()
   ],
   providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}],
   bootstrap: [AppComponent]

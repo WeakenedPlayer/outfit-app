@@ -1,35 +1,4 @@
-
-// ?field=]10&field=[50
-// [field] [modifier] [value ] & ...
-
-export interface CensusQueryString {
-    toString(): string;
-}
-
-export class QueryBuilder {
-    private query: string = '';
-    private append( field: string, modifier: string, value: string ): QueryBuilder {
-        this.query = this.query + ( this.query ? '&' : '' ) + field + '=' + modifier + value;
-        return this;
-    }
-
-    clear(): void {
-        this.query = '';
-    }
-    
-    toString(): string {
-        return this.query;
-    }
-
-    equals( field: string, value: string ):             QueryBuilder{ return this.append( field, '', value  ) }
-    lessThan( field: string, value: string ):           QueryBuilder{ return this.append( field, '<', value ) }
-    lessThanOrEqual( field: string, value: string ):    QueryBuilder{ return this.append( field, '[', value ) }
-    greaterThan( field: string, value: string ):        QueryBuilder{ return this.append( field, '>', value ) }
-    greaterThanOrEqual( field: string, value: string ): QueryBuilder{ return this.append( field, ']', value ) }
-    startWith( field: string, value: string ):          QueryBuilder{ return this.append( field, '^', value ) }
-    contains( field: string, value: string ):           QueryBuilder{ return this.append( field, '*', value ) }
-    not( field: string, value: string ):                QueryBuilder{ return this.append( field, '!', value ) }
-}
+import { JoinBuilder } from './join-builder';
 
 export class CommandBuilder {
     private command: string = '';
@@ -66,7 +35,17 @@ export class CommandBuilder {
     case( value: boolean ): CommandBuilder                    { return this.appendBoolean( 'case', value ) }
     limit( value: number ): CommandBuilder                    { return this.append( 'limit', String( value ) ) }
     limitPerDB( value: number ): CommandBuilder               { return this.append( 'limitPerDB', String( value ) ) }
-    
-    
-    
+    join( jb: JoinBuilder | JoinBuilder[] ): CommandBuilder {
+        let query: string = 'c:join=';
+        if( jb instanceof Array ) {
+            let tmp: string = '';
+            jb.map( j => {
+                tmp = tmp + ( tmp ? ',' : '' ) + j.toString();
+            } );
+            query = query + tmp;
+        } else {
+            query = query + jb.toString();
+        }
+        return this;
+    }
 }
