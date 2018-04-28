@@ -11,4 +11,11 @@
    	<button (click)="onTest()">test</button>
 </form>
 
+<div>
+<ul>
+<ng-template ngFor let-item [ngForOf]="nameList" let-i="index" [ngForTrackBy]="trackById">
+  <li>{{item.id}}:{{item.name}}</li>
+</ng-template>
+</ul>
+</div>
 

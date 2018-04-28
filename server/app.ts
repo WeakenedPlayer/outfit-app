@@ -20,6 +20,7 @@ let serviceId: string = config.CENSUS_API_SERVICE_ID || 'example' ;
 let token: string = config.DISCORD_TOKEN || '';
 let recaptcha: string = config.RECAPTCHA_SECRET || '';
 
+
 //　console.log( target );
 //　console.log( serviceId );
 //　console.log( recaptcha );

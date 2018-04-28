@@ -4,11 +4,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { CensusService } from 'local-services';
 //import { RecaptchaModule } from 'ng-recaptcha';
 
 import { AppComponent } from './app.component';
-
-
 
 
 @NgModule({
@@ -21,7 +20,11 @@ import { AppComponent } from './app.component';
     ReactiveFormsModule,
 //    RecaptchaModule.forRoot()
   ],
-  providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}],
-  bootstrap: [AppComponent]
+  providers: [
+      Location,
+      { provide: LocationStrategy, useClass: PathLocationStrategy },
+      CensusService
+  ],
+  bootstrap: [ AppComponent ]
 })
 export class AppModule { }
