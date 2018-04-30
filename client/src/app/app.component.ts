@@ -1,137 +1,155 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subscription } from 'rxjs'
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/distinct';
-import 'rxjs/add/operator/take';
-
-import { CensusService, CharacterName } from 'local-services';
-// <re-captcha (resolved)="resolved($event)" name="captch" required siteKey="6Lcu-FQUAAAAAKJNo4yIgv4ukowhZrTDpUVAV9rj"></re-captcha>
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import {ScrollPanel} from 'primeng/primeng';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnDestroy, OnInit {
-    title = 'app';
-    formGroup: FormGroup;
-    name: FormControl;
-    password: string = 'pwd';
-    token: string = 'no';
-    recaptcha: string = '';
-    sb: Subscription = new Subscription();
-    
-    nameList: CharacterName[] = [];
-    
-    task: Observable<any>;
+export class AppComponent implements AfterViewInit {
 
-    constructor( private http: HttpClient, private census: CensusService ) {
-        this.formGroup = new FormGroup( {
-            name: new FormControl()
-        } );
+    darkTheme = false;
 
-        this.task = this.formGroup.controls.name.valueChanges
-        .debounceTime( 500 )
-        .distinct()
-        .switchMap( name => {
-            console.log( '--------------------------------' );
-            return this.census.getCharcterName( name, 10 );
-        } )
-        .map( res => {
-            this.nameList = res;
-            console.log( res );
-        } );
+    menuMode = 'static';
+
+    topbarMenuActive: boolean;
+
+    overlayMenuActive: boolean;
+
+    staticMenuDesktopInactive: boolean;
+
+    staticMenuMobileActive: boolean;
+
+    layoutMenuScroller: HTMLDivElement;
+
+    menuClick: boolean;
+
+    topbarItemClick: boolean;
+
+    activeTopbarItem: any;
+
+    resetMenu: boolean;
+
+    menuHoverActive: boolean;
+
+    @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ScrollPanel;
+
+    ngAfterViewInit() {
+        setTimeout(() => {this.layoutMenuScrollerViewChild.moveBar(); }, 100);
     }
-    
-    onSubmit() {
-        this.http.post( '/submit', {
-            name: this.name,
-            recaptcha: this.recaptcha
-        } ).toPromise().then( ( res: Response ) => {
-            console.log( res );
-        } );
+
+    onLayoutClick() {
+        if (!this.topbarItemClick) {
+            this.activeTopbarItem = null;
+            this.topbarMenuActive = false;
+        }
+
+        if (!this.menuClick) {
+            if (this.isHorizontal() || this.isSlim()) {
+                this.resetMenu = true;
+            }
+
+            if (this.overlayMenuActive || this.staticMenuMobileActive) {
+                this.hideOverlayMenu();
+            }
+
+            this.menuHoverActive = false;
+        }
+
+        this.topbarItemClick = false;
+        this.menuClick = false;
     }
-   
-    onTest(): void {
+
+    onMenuButtonClick(event) {
+        this.menuClick = true;
+        this.topbarMenuActive = false;
+
+        if (this.isOverlay()) {
+            this.overlayMenuActive = !this.overlayMenuActive;
+        }
+        if (this.isDesktop()) {
+            this.staticMenuDesktopInactive = !this.staticMenuDesktopInactive;
+        } else {
+            this.staticMenuMobileActive = !this.staticMenuMobileActive;
+        }
+
+        event.preventDefault();
     }
-    
-    ngOnDestroy(): void {
-        this.sb.unsubscribe();
+
+    onMenuClick($event) {
+        this.menuClick = true;
+        this.resetMenu = false;
+
+        if (!this.isHorizontal()) {
+            setTimeout(() => {this.layoutMenuScrollerViewChild.moveBar(); }, 500);
+        }
     }
-    
-    ngOnInit(): void {
-        this.sb.add( this.task.subscribe() );
+
+    onTopbarMenuButtonClick(event) {
+        this.topbarItemClick = true;
+        this.topbarMenuActive = !this.topbarMenuActive;
+
+        this.hideOverlayMenu();
+
+        event.preventDefault();
     }
-    
-    trackById( index: number,item: CharacterName ): any {
-        return item.id;
+
+    onTopbarItemClick(event, item) {
+        this.topbarItemClick = true;
+
+        if (this.activeTopbarItem === item) {
+            this.activeTopbarItem = null;
+        } else {
+            this.activeTopbarItem = item;
+        }
+
+        event.preventDefault();
+    }
+
+    isHorizontal() {
+        return this.menuMode === 'horizontal';
+    }
+
+    isSlim() {
+        return this.menuMode === 'slim';
+    }
+
+    isOverlay() {
+        return this.menuMode === 'overlay';
+    }
+
+    isStatic() {
+        return this.menuMode === 'static';
+    }
+
+    isMobile() {
+        return window.innerWidth < 1025;
+    }
+
+    isDesktop() {
+        return window.innerWidth > 1024;
+    }
+
+    isTablet() {
+      const width = window.innerWidth;
+      return width <= 1024 && width > 640;
+    }
+
+    hideOverlayMenu() {
+        this.overlayMenuActive = false;
+        this.staticMenuMobileActive = false;
+    }
+
+    changeTheme(theme) {
+        const themeLink: HTMLLinkElement = <HTMLLinkElement>document.getElementById('theme-css');
+        themeLink.href = 'assets/theme/theme-' + theme + '.css';
+        const layoutLink: HTMLLinkElement = <HTMLLinkElement>document.getElementById('layout-css');
+        layoutLink.href = 'assets/layout/css/layout-' + theme + '.css';
+
+        if (theme.indexOf('dark') !== -1) {
+          this.darkTheme = true;
+        } else {
+          this.darkTheme = false;
+        }
     }
 }
-
-
-
-
-
-
-
-//onLogin() {
-//  this.http.post( '/auth/login', { name: this.name, password: this.password } ).toPromise().then( ( res: Response ) => {
-//      let token = this.retrieveToken( res );
-//      if( token ){
-//          this.token = token;
-//      }
-//  } );
-//}
-//resolved( result: string ) {
-//console.log( result );
-//this.recaptcha = result;
-//this.http.post( '/submit', {
-//name: this.name,
-//recaptcha: result
-//} ).toPromise().then( ( res: Response ) => {
-//console.log( res );
-//} );
-//}
-//
-//onRefresh() {
-//  let headers = new Headers( { 'Authorization': 'Bearer ' + this.token } );
-//  let options = new RequestOptions( { headers: headers } );
-//  this.http.get( '/auth/refresh', options ).toPromise().then( ( res )=>{
-//      let token = this.retrieveToken( res );
-//      if( token ){
-//          this.token = token;
-//      }
-//  } ).catch( ( err ) => {
-//      console.log( err );
-//      console.log( 'e' );
-//  } );
-//}
-
-//onNoToken() {
-//  this.http.get( '/auth/refresh' ).toPromise().then( ( res )=>{
-//      console.log( res );
-//  } );
-//}
-//
-//onRegister() {
-//  let data = { name: this.name, password: this.password };
-//  console.log( data );
-//  this.http.post( '/auth/register', { name: this.name, password: this.password } )
-//  .toPromise()
-//  .then( ( res: Response ) => {
-//      let token = this.retrieveToken( res );
-//      if( token ){
-//          this.token = token;
-//      }
-//      console.log( res );
-//  } );
-//}
-//private retrieveToken( response: Response ): string {
-//  let res: any = response.json();
-//  let token: string = res.token;
-//  return token;
-//}
