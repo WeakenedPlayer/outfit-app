@@ -100,6 +100,9 @@ import { EventService } from './demo/service/eventservice';
 import { NodeService } from './demo/service/nodeservice';
 import { BreadcrumbService } from './breadcrumb.service';
 
+import { VIEW_DECLARATIONS } from 'app-views';
+import { SERVICE_PROVIDERS } from 'app-services';
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -194,10 +197,12 @@ import { BreadcrumbService } from './breadcrumb.service';
         FileDemoComponent,
         MiscDemoComponent,
         EmptyDemoComponent,
-        DocumentationComponent
+        DocumentationComponent,
+        ...VIEW_DECLARATIONS
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
+        ...SERVICE_PROVIDERS,
         CarService, CountryService, EventService, NodeService, BreadcrumbService
     ],
     bootstrap: [AppComponent]

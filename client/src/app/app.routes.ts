@@ -14,6 +14,8 @@ import { MiscDemoComponent } from './demo/view/miscdemo.component';
 import { EmptyDemoComponent } from './demo/view/emptydemo.component';
 import { DocumentationComponent } from './demo/view/documentation.component';
 
+import { ApplicationFormComponent } from 'app-views';
+
 export const routes: Routes = [
     { path: '', component: DashboardDemoComponent },
     { path: 'sample', component: SampleDemoComponent },
@@ -28,6 +30,7 @@ export const routes: Routes = [
     { path: 'misc', component: MiscDemoComponent },
     { path: 'empty', component: EmptyDemoComponent },
     { path: 'documentation', component: DocumentationComponent },
+    { path: 'application', component: ApplicationFormComponent }
 ];
 
 export const AppRoutes: ModuleWithProviders = RouterModule.forRoot(routes);

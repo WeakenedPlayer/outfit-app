@@ -1,5 +1,5 @@
 {
-  "name": "local-services",
+	"name": "app-services",
   "version": "0.0.0",
   "main": "index.ts",
   "private": true

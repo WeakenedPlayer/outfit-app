@@ -9,9 +9,10 @@
 /node_modules
 
 # IDEs and editors
-/.idea
+.idea
 .project
 .classpath
+.sass-cache
 .c9/
 *.launch
 .settings/

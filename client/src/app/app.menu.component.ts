@@ -106,7 +106,8 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Components', icon: 'fa fa-fw fa-sitemap',
                 items: [
-                    { label: 'Sample Page', icon: 'fa fa-fw fa-columns', routerLink: ['/sample'] },
+                        { label: 'App Page', icon: 'fa fa-fw fa-columns', routerLink: ['/application'] },
+                        { label: 'Sample Page', icon: 'fa fa-fw fa-columns', routerLink: ['/sample'] },
                     { label: 'Forms', icon: 'fa fa-fw fa-code', routerLink: ['/forms'] },
                     { label: 'Data', icon: 'fa fa-fw fa-table', routerLink: ['/data'] },
                     { label: 'Panels', icon: 'fa fa-fw fa-list-alt', routerLink: ['/panels'] },

@@ -1,0 +1,19 @@
+<div class="ui-fluid"><div class="ui-g"><div class="ui-g-12">
+	<div class="card docs no-margin">
+		<h1>Application Form</h1>
+		<p>応募フォーム〜〜〜〜〜a</p>
+		<div class="ui-g form-group">
+	    <div class="ui-g-12 ui-md-2">
+				<label for="autocomplete">Enter your character name: </label>
+			</div>
+	    <div class="ui-g-12 ui-md-4">
+	        <p-autoComplete [(ngModel)]="character" 
+	        							  [suggestions]="characterSuggestions"
+	        							  (completeMethod)="updateSuggestions($event)"
+	        							  field="name"
+	            						placeholder="Character name" [minLength]="1"></p-autoComplete>
+	  	</div>
+		</div>
+	</div>
+</div></div></div>
+
