@@ -21,7 +21,7 @@
     "@angular/platform-browser": "^5.2.10",
     "@angular/platform-browser-dynamic": "^5.2.10",
     "@angular/router": "^5.2.10",
-    "@weakenedplayer/census-api": "0.0.1-beta.4",
+    "@weakenedplayer/census-api": "0.0.3-beta.0",
     "app-services": "file:src/app/services",
     "app-views": "file:src/app/views",
     "chart.js": "2.7.1",

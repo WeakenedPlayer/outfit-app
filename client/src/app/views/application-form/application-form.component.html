@@ -1,7 +1,6 @@
 <div class="ui-fluid"><div class="ui-g"><div class="ui-g-12">
 	<div class="card docs no-margin">
 		<h1>Application Form</h1>
-		<p>応募フォーム〜〜〜〜〜a</p>
 		<div class="ui-g form-group">
 	    <div class="ui-g-12 ui-md-2">
 				<label for="autocomplete">Enter your character name: </label>
@@ -10,6 +9,8 @@
 	        <p-autoComplete [(ngModel)]="character" 
 	        							  [suggestions]="characterSuggestions"
 	        							  (completeMethod)="updateSuggestions($event)"
+	        							  (onClear)="clearCharacter()"
+	        							  (onSelect)="selectCharacter($event)"
 	        							  field="name"
 	            						placeholder="Character name" [minLength]="1"></p-autoComplete>
 	  	</div>

@@ -5,10 +5,11 @@ import { Census } from '@weakenedplayer/census-api';
 import 'rxjs/add/operator/map';
 
 class CensusHttp implements Census.RestApiHttp {
-    constructor( private http: HttpClient ) {
+    constructor( private http: HttpClient, private timeout: number ) {
     }
     get( url: string ): Observable<any> {
-        return this.http.get( url );
+        return this.http.get( url )
+        .timeout( this.timeout );
     }
 }
 
@@ -20,23 +21,44 @@ export interface CharacterName {
 @Injectable()
 export class CensusService {
     private api: Census.RestApi;
+    private characterNameQuery = new Census.RestQuery( 'character_name' );
     constructor( private http: HttpClient ) {
         this.api = new Census.RestApi( this.http );
+        
+        this.characterNameQuery
     }
-    
+
     getCharcterName( partOfName: string, count: number = 10 ): Observable<CharacterName[]> {
-        let query = new Census.RestQueryBuilder().contains( 'name.first_lower', partOfName.toLowerCase() );
-        let command = new Census.RestCommandBuilder().limit( 10 ).show( ['character_id', 'name.first' ] );
-        let collection = 'character_name';
-        return this.api.get( 'character_name', query, command ).map( res => {
-            let items: CharacterName[] = [];
-            if( res && res.returned > 0 ) {
-                let list: any[] = res[ collection + '_list' ];
-                list.map( item => {
-                    items.push( { id: item[ 'character_id' ], name: item[ 'name' ][ 'first' ] } );
-                } );
-            }
-            return items;
+        let query = new Census.RestQuery( 'character_name' )
+        .where( 'name.first_lower',  t => t.startWith( partOfName ) )
+        .limit( count );
+        
+        return this.api.get( query ).map( res => {
+            let chracterNames: CharacterName[] = [];
+            res.map( item => {
+                chracterNames.push( { id: item[ 'character_id' ], name: item[ 'name' ][ 'first' ] } );
+            } );
+            return chracterNames;
         } );
     }
+
+    getCharcterProfile( characterId: string ): Observable<CharacterName[]> {
+        let query = new Census.RestQuery( 'character' )
+        .where( 'character_id',  t => t.equals( characterId ) )
+        .join( 'world', 'characters_world', join => {
+            join.nest( 'world_join', 'world', ( join ) => {} );
+        } )
+        .join( 'outfit', 'outfit_member_extended', ( join ) => {
+            join.show( ['name' ] );
+        } );
+        
+        return this.api.get( query );
+//        let joinWorld = new Census.RestJoinBuilder( 'world' );
+//        let joinFaction = new Census.RestJoinBuilder( 'faction' );
+//        let joinOutfit = new Census.RestJoinBuilder( 'outfit' );
+//        let command = new Census.RestCommandBuilder().join( [joinWorld,joinFaction,joinOutfit] );
+//        let collection = 'character';
+//        console.log( command.toString() );
+    }
 }
+// http://census.daybreakgames.com/get/ps2:v2/character/?character_id=5428257774260271201&c:join=characters_world(world),outfit_member_extended
