@@ -153,6 +153,24 @@ app.use( express.static(path.join(__dirname, 'public')) );
 //app.use('/api', api);
 const secret = '6Lcu-FQUAAAAAHAk2PJ3KDe-6sIb1C3RGK2KB32e';
 
+//------------------------------------------------------------------
+app.use('/assets', express.static(path.join( __dirname, '../client/assets') ) );
+console.log( (path.join( __dirname, '../client/assets') ) );
+
+app.get('/application/requirement', (req, res) => {
+    res.json( {
+        'faction_id': '1',
+        'world_id': '1'
+    } );
+} );
+
+//------------------------------------------------------------------
+let ids: string[] = [];
+app.post('/application/register', (req, res) => {
+    console.log( req.body );
+} );
+//------------------------------------------------------------------
+
 app.post('/submit', (req, res) => {
     let verifyUrl = 'https://www.google.com/recaptcha/api/siteverify?secret='+secret+'&response=' + req.body.recaptcha;
     request( verifyUrl, ( err, res, body ) => {
@@ -167,7 +185,6 @@ app.post('/submit', (req, res) => {
 app.get('/login', (req, res) => {
     res.json( loginPlayer );
 } );
-
 
 app.get('/:file', (req, res) => {
     var file = req.params.file;
