@@ -37,7 +37,8 @@ import { GrowlModule } from 'primeng/primeng';
 import { InputMaskModule } from 'primeng/primeng';
 import { InputSwitchModule } from 'primeng/primeng';
 import { InputTextModule } from 'primeng/primeng';
-import { InputTextareaModule } from 'primeng/primeng';
+import { InputTextareaModule } from 'primeng/primeng';;
+import { KeyFilterModule } from 'primeng/primeng';
 import { LightboxModule } from 'primeng/primeng';
 import { ListboxModule } from 'primeng/primeng';
 import { MegaMenuModule } from 'primeng/primeng';
@@ -127,6 +128,7 @@ import { SERVICE_PROVIDERS } from 'app-services';
         InputTextareaModule,
         LightboxModule,
         ListboxModule,
+        KeyFilterModule,
         MegaMenuModule,
         MenuModule,
         MenubarModule,

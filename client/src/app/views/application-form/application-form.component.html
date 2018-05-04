@@ -6,23 +6,24 @@
 	        <label for="autocomplete">Enter your character name: </label>
 	    </div>
 	    <div class="ui-g-12 ui-md-9">
-	        <p-autoComplete [(ngModel)]="character" 
-	 							  [suggestions]="vm.suggestion$ | async"
-	 							  (completeMethod)="updateSuggestions($event)"
-	 							  (onSelect)="selectCharacter($event)"
-	 							  field="name.first"
-	     				          placeholder="Character name" [minLength]="1"></p-autoComplete>
+	        <p-autoComplete [(ngModel)]="character"
+	                        forceSelection="true"
+	 						[suggestions]="vm.suggestion$ | async"
+	 						(completeMethod)="updateSuggestions( $event )"
+	 						(onSelect)="selectCharacter( $event )"
+	 						field="name.first"
+	     				    placeholder="Character name" [minLength]="3"></p-autoComplete>
 	    </div>
     </div>
     <div class="ui-g" *ngIf="vm.selectedProfile$ | async as profile">
         <div class="ui-g-12 ui-md-12">
 		    <p-panel header="Profile" [toggleable]="true">
 			    <ul>
+                    <li>Name: {{profile?.name}}</li>
+                    <li>Battle Rank: {{profile?.battleRank}}</li>
+                    <li>A.S.P. Level: {{profile?.aspLevel}}</li>
 		            <li>Server: {{profile?.world}}</li>
 		            <li>Faction: {{profile?.faction}}</li>
-			        <li>Name: {{profile?.name}}</li>
-		            <li>Battle Rank: {{profile?.battleRank}}</li>
-		            <li>A.S.P. Level: {{profile?.aspLevel}}</li>
 		            <li *ngIf="profile?.outfit" >Outfit: [{{profile?.outfitAlias}}] {{profile?.outfit}}</li>
 			    </ul>
              </p-panel>

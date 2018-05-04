@@ -7,8 +7,6 @@ import { flatMap, share, map, shareReplay, tap } from 'rxjs/operators';
  * 応募可否の判定
  * ------------------------------------------------------------------------- */
 
-const MIN_LENGTH = 3;
-
 export interface Profile {
     id: string;
     name: string;
@@ -43,11 +41,7 @@ export class ViewModel {
         this.suggestion$ = combineLatest( this.partOfName$, this.suggestionLimit$ )
         .pipe(
             flatMap( ( [ name, limit ]: [ string, number ] ) => {
-                if( name.length >= MIN_LENGTH && limit > 0 ) {
-                    return this.census.getCharcterName( name, limit );
-                } else {
-                    return of( [] );
-                }
+                return this.census.getCharcterName( name, limit );
             } ),
             shareReplay( 1 )
         );
