@@ -85,6 +85,8 @@ import { BreadcrumbService } from './breadcrumb.service';
 import { VIEW_DECLARATIONS } from 'app-views';
 import { SERVICE_PROVIDERS } from 'app-services';
 
+
+
 @NgModule({
     imports: [
         BrowserModule,

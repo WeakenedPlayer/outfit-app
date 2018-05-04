@@ -31,9 +31,10 @@ export class ApplicationFormComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.vm.init();
-        this.vm.updateSuggestionCount( 10 );
+        this.vm.updateSuggestionCount( 5 );
         this.vm.updateRequirement();
     }
+    
     ngOnDestroy() {
         this.vm.destroy();
     }

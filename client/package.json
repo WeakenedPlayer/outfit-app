@@ -21,7 +21,6 @@
     "@angular/platform-browser": "6.0.0",
     "@angular/platform-browser-dynamic": "6.0.0",
     "@angular/router": "6.0.0",
-    "@ngrx/platform": "github:ngrx/platform",
     "@weakenedplayer/census-api": "0.0.4",
     "app-services": "file:src/app/services",
     "app-views": "file:src/app/views",

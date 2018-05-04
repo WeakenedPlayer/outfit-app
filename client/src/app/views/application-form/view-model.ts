@@ -1,6 +1,6 @@
 import { CharacterName, CensusService, CharacterProfile, BackendService, Requirement } from 'app-services';
-import { Observable, BehaviorSubject, Subject, Subscription, of, empty } from 'rxjs';
-import { combineLatest, flatMap, share, map } from 'rxjs/operators';
+import { Observable, BehaviorSubject, Subject, Subscription, of, empty, combineLatest } from 'rxjs';
+import { flatMap, share, map, shareReplay, tap } from 'rxjs/operators';
 /* ----------------------------------------------------------------------------
  * 候補の表示
  * プロフィールの表示
@@ -40,9 +40,8 @@ export class ViewModel {
         // --------------------------------------------------------------------
         // 候補
         // --------------------------------------------------------------------
-        this.suggestion$ = this.partOfName$
+        this.suggestion$ = combineLatest( this.partOfName$, this.suggestionLimit$ )
         .pipe(
-            combineLatest( this.suggestionLimit$ ),
             flatMap( ( [ name, limit ]: [ string, number ] ) => {
                 if( name.length >= MIN_LENGTH && limit > 0 ) {
                     return this.census.getCharcterName( name, limit );
@@ -50,7 +49,7 @@ export class ViewModel {
                     return of( [] );
                 }
             } ),
-            share()
+            shareReplay( 1 )
         );
         
         // --------------------------------------------------------------------
@@ -83,7 +82,7 @@ export class ViewModel {
                 }
                 return tmp;
             } ),
-            share()
+            shareReplay( 1 )
         );
 
         // --------------------------------------------------------------------
@@ -94,21 +93,19 @@ export class ViewModel {
             flatMap( () => {
                 return this.backend.getRequirement();
             } ),
-            share()
+            shareReplay( 1 )
         );
         
         // --------------------------------------------------------------------
         // Submitできるかどうか
         // --------------------------------------------------------------------
-        this.submitDisabled$ = this.selectedProfile$
-        .pipe( 
-            combineLatest( this.requirement$ ),
+        this.submitDisabled$ = combineLatest( this.selectedProfile$, this.requirement$ )
+        .pipe(
             map( ( [ profile, requirement ]: [ Profile, Requirement ] ) => {
                 let result = ( !profile || !requirement || ( profile.worldId !== requirement.world_id ) || ( profile.factionId !== requirement.faction_id ) );
-                console.log( result );
                 return result;
             } ),
-            share()
+            shareReplay( 1 )
         );
     }
     
@@ -121,7 +118,6 @@ export class ViewModel {
     }
     
     updateRequirement(): void {
-        console.log('test')
         this.updateRequirement$.next();
     }
     
@@ -137,6 +133,7 @@ export class ViewModel {
         this.sb.add( this.requirement$.subscribe() );
         this.sb.add( this.submitDisabled$.subscribe() );
     }
+    
     destroy(): void {
         this.sb.unsubscribe();
         this.sb = new Subscription();
