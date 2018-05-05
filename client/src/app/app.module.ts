@@ -5,7 +5,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { AppRoutes } from './app.routes';
-import 'rxjs/add/operator/toPromise';
 
 import { AccordionModule } from 'primeng/primeng';
 import { AutoCompleteModule } from 'primeng/primeng';
@@ -87,6 +86,28 @@ import { VIEW_DECLARATIONS } from 'app-views';
 import { SERVICE_PROVIDERS } from 'app-services';
 
 
+//-----------------------------------------------------------------------------
+// ngrx
+//-----------------------------------------------------------------------------
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreRouterConnectingModule, RouterStateSerializer } from '@ngrx/router-store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+
+const NGRX_IMPORTS = [
+    StoreModule.forRoot( reducers, { metaReducers } ),
+    StoreRouterConnectingModule.forRoot( { stateKey: 'router' } ),
+//    StoreDevtoolsModule.instrument( {
+//      name: 'NgRx Book Store DevTools',
+//      logOnly: environment.production,
+//    } ),
+    EffectsModule.forRoot( [] ),
+]
+
+//const NGRX_PROVIDERS = [ { 
+//    provide: RouterStateSerializer,
+//    useClass: CustomRouterStateSerializer
+//} ];
 
 @NgModule({
     imports: [
