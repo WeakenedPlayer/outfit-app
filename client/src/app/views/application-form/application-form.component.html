@@ -7,6 +7,7 @@
 	    </div>
 	    <div class="ui-g-12 ui-md-9">
 	        <p-autoComplete [(ngModel)]="character"
+	                        pKeyFilter="alphanum"
 	                        forceSelection="true"
 	 						[suggestions]="vm.suggestion$ | async"
 	 						(completeMethod)="updateSuggestions( $event )"
@@ -17,7 +18,7 @@
     </div>
     <div class="ui-g" *ngIf="vm.selectedProfile$ | async as profile">
         <div class="ui-g-12 ui-md-12">
-		    <p-panel header="Profile" [toggleable]="true">
+		    <p-panel header="Profile" [toggleable]="false">
 			    <ul>
                     <li>Name: {{profile?.name}}</li>
                     <li>Battle Rank: {{profile?.battleRank}}</li>
@@ -26,10 +27,10 @@
 		            <li>Faction: {{profile?.faction}}</li>
 		            <li *ngIf="profile?.outfit" >Outfit: [{{profile?.outfitAlias}}] {{profile?.outfit}}</li>
 			    </ul>
+    <p-footer>
+            <p-button label="Register" styleClass="ui-button-info" [disabled]="vm.submitDisabled$ | async"></p-button>
+    </p-footer>
              </p-panel>
-        </div>
-        <div class="ui-g-12 ui-md-2">
-            <p-button label="Submit" styleClass="ui-button-info" [disabled]="vm.submitDisabled$ | async"></p-button>
         </div>
     </div>
 </div></div></div></div>
