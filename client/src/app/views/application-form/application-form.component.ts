@@ -2,7 +2,12 @@ import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angu
 import { CharacterName, CensusService, CharacterProfile, BackendService, Requirement } from 'app-services';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { ViewModel, Profile } from './view-model';
-import 'rxjs/add/operator/share';
+
+import { Store } from '@ngrx/store';
+interface State {
+    counter: number;
+}
+
 
 @Component({
     selector: 'application-form-component',
@@ -10,10 +15,12 @@ import 'rxjs/add/operator/share';
 })
 export class ApplicationFormComponent implements OnInit, OnDestroy {
     vm: ViewModel;
-    
+    counter: Observable<number>;
+
     selectedCharacter = new BehaviorSubject<CharacterName>( null );
-    constructor( private census: CensusService, private backend: BackendService ) {
+    constructor( private census: CensusService, private backend: BackendService, private store: Store<State> ) {
         this.vm = new ViewModel( census, backend );
+        this.counter = store.select('counter');
     }
 
     updateSuggestions( $event: any ): void {
@@ -29,6 +36,7 @@ export class ApplicationFormComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        console.log('+')
         this.vm.init();
         this.vm.updateSuggestionCount( 5 );
         this.vm.updateRequirement();
@@ -37,4 +45,20 @@ export class ApplicationFormComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.vm.destroy();
     }
+    
+
+      increment(){
+          console.log('+')
+        this.store.dispatch({ type: 'INCREMENT' });
+      }
+
+      decrement(){
+          console.log('-')
+        this.store.dispatch({ type: 'DECREMENT' });
+      }
+
+      reset(){
+          console.log('reset')
+        this.store.dispatch({ type: 'RESET' });
+      }
 }

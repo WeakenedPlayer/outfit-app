@@ -93,15 +93,16 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreRouterConnectingModule, RouterStateSerializer } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { counterReducer } from './store/sample';
 
 const NGRX_IMPORTS = [
-    StoreModule.forRoot( reducers, { metaReducers } ),
-    StoreRouterConnectingModule.forRoot( { stateKey: 'router' } ),
+    StoreModule.forRoot( { counter: counterReducer } )
+//    StoreRouterConnectingModule.forRoot( { stateKey: 'router' } ),
 //    StoreDevtoolsModule.instrument( {
 //      name: 'NgRx Book Store DevTools',
 //      logOnly: environment.production,
 //    } ),
-    EffectsModule.forRoot( [] ),
+//    EffectsModule.forRoot( [] ),
 ]
 
 //const NGRX_PROVIDERS = [ { 
@@ -183,7 +184,8 @@ const NGRX_IMPORTS = [
         ToolbarModule,
         TooltipModule,
         TreeModule,
-        TreeTableModule
+        TreeTableModule,
+        ...NGRX_IMPORTS
     ],
     declarations: [
         AppComponent,

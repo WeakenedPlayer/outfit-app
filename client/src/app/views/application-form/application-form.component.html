@@ -27,10 +27,24 @@
 		            <li>Faction: {{profile?.faction}}</li>
 		            <li *ngIf="profile?.outfit" >Outfit: [{{profile?.outfitAlias}}] {{profile?.outfit}}</li>
 			    </ul>
-    <p-footer>
-            <p-button label="Register" styleClass="ui-button-info" [disabled]="vm.submitDisabled$ | async"></p-button>
-    </p-footer>
+			    <p-footer>
+			            <p-button label="Register" styleClass="ui-button-info" [disabled]="vm.submitDisabled$ | async"></p-button>
+			    </p-footer>
              </p-panel>
+        </div>
+    </div>
+    
+    
+        <div class="ui-g">
+        <div class="ui-g-12 ui-md-12">
+		    <p-panel header="value" [toggleable]="false">
+		    	<p>{{counter | async }}</p>
+			    <p-footer>
+			            <p-button label="+" styleClass="ui-button-info" (click)="increment()"></p-button>
+			            <p-button label="-" styleClass="ui-button-info" (click)="decrement()"></p-button>
+			            <p-button label="0" styleClass="ui-button-info" (click)="reset()"></p-button>
+			    </p-footer>
+          </p-panel>
         </div>
     </div>
 </div></div></div></div>
